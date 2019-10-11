@@ -2,6 +2,13 @@
 
 @section('content')
 <div class="container">
+  @if(Session::has('status'))
+    <div class="alert alert-info">
+      <span>{{ Session::get('status') }}</span>
+    </div>
+  @endif
+
+
     <form action="{{ route('admin.setting.store') }}" method="post">
         {{ csrf_field() }}
 
@@ -14,20 +21,21 @@
               </button>
               <div class="dropdown-menu">
                 <a class="dropdown-item" href="#" onclick="document.getElementById('url_callback_bot').value = '{{ url('') }}'">Вставить url</a>
-                <a class="dropdown-item" href="#">Отправить url</a>
-                <a class="dropdown-item" href="#">Получить информацию</a>
+                <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('setwebhook').submit();">Отправить url</a>
+                <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('getwebhookinfo').submit();">Получить информацию</a>
               </div>
             </div>
           </div>
           <input type="url" class="form-control" id="url_callback_bot" name="url_callback_bot" value="{{ $url_callback_bot ?? '' }}">
         </div>
 
-        <label>Название главной страницы</label>
-        <div class="input-group mb-3">
-          <input type="text" class="form-control" name="site_name" value="{{ $site_name ?? '' }}">
-        </div>
-
         <button class="btn btn-primary" type="submit">Сохранить</button>
     </form>
+
+    <form action="{{ route('admin.setting.setwebhook') }}" id="setwebhook" method="post" style="display: none;">
+      {{ csrf_field() }}
+      <input type="hidden" name="url" value="{{ $url_callback_bot ?? '' }}">
+    </form>
+    <form action="{{ route('admin.setting.getwebhookinfo') }}" id="getwebhookinfo" method="post" style="display: none;">{{ csrf_field() }}</form>
 </div>
 @endsection
