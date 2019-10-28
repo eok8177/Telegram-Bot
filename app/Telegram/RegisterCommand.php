@@ -5,17 +5,17 @@ namespace App\Telegram;
 use Telegram\Bot\Actions;
 use Telegram\Bot\Commands\Command;
 
-class TestCommand extends Command
+class RegisterCommand extends Command
 {
     /**
      * @var string Command Name
      */
-    protected $name = 'test';
+    protected $name = 'register';
 
     /**
      * @var string Command Description
      */
-    protected $description = 'Test command, Get a list of commands';
+    protected $description = 'Регистрация';
 
     /**
      * {@inheritdoc}
@@ -30,27 +30,7 @@ class TestCommand extends Command
 
         $telegram_user = \Telegram::getWebhookUpdates()['message'];
         $text = sprintf('%s: %s'.PHP_EOL, 'Ваш номер чата', $telegram_user['from']['id']);
-
-        $keyboard = [
-            ['7', '8', '9'],
-            ['4', '5', '6'],
-            ['1', '2', '3'],
-                 ['0']
-        ];
-
-        $reply_markup = \Telegram::replyKeyboardMarkup([
-            'keyboard' => $keyboard, 
-            'resize_keyboard' => true, 
-            'one_time_keyboard' => true
-        ]);
-
-        $response = \Telegram::sendMessage([
-            'chat_id' => $telegram_user['from']['id'], 
-            'text' => 'Hello World', 
-            'reply_markup' => $reply_markup
-        ]);
-
-        $messageId = $response->getMessageId();
+        $text .= sprintf('%s: %s'.PHP_EOL, 'Ваше имя пользователя в телеграм', $telegram_user['from']['username']);
 
         $this->replyWithMessage(compact('text'));
     }
