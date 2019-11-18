@@ -27,11 +27,32 @@ class TelegramController extends Controller
         $message = $update->getMessage();
         $text = trim($message->getText(true));
 
-
-        $tUser->text = trim($text);
+        $tUser->text = json_encode($telegram);
         $tUser->save();
 
+        if($tUser->section == 'register') {
+
+            if ($text == 'Изменить') {
+                $tUser->step = '0';
+                $tUser->save();
+            }
+
+            if ($text == 'Продолжить') {
+                $tUser->section = 'start';
+                $tUser->step = '0';
+                $tUser->save();
+                Telegram::getCommandBus()->execute('start', '', $update);
+                return;
+            }
+
+            Telegram::getCommandBus()->execute('register', '', $update);
+            return;
+        }
+
         if ($text === 'Регистрация') {
+            $tUser->section = 'register';
+            $tUser->step = '0';
+            $tUser->save();
             Telegram::getCommandBus()->execute('register', '', $update);
         }
 
