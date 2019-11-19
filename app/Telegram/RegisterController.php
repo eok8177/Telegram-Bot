@@ -2,43 +2,28 @@
 
 namespace App\Telegram;
 
-use Telegram\Bot\Actions;
-use Telegram\Bot\Commands\Command;
 use App\TelegramUser;
 use App\Client;
 
-class RegisterCommand extends Command
+class RegisterController
 {
-    /**
-     * @var string Command Name
-     */
-    protected $name = 'register';
 
     /**
-     * @var string Command Description
+     * $t_id - telegram id
+     * $message - from client
+     * return Array(keyboard, text)
      */
-    protected $description = 'Регистрация';
-
-    /**
-     * {@inheritdoc}
-     */
-    public function handle($arguments)
+    static function index($t_id, $message)
     {
-        $this->replyWithChatAction(['action' => Actions::TYPING]);
 
-        $telegram_user = \Telegram::getWebhookUpdates()['message'];
-
-        $tUser = TelegramUser::find($telegram_user['from']['id']);
-
-        $client = Client::where('t_id', $telegram_user['from']['id'])->first();
+        $tUser = TelegramUser::find($t_id);
+        $client = Client::where('t_id', $t_id)->first();
 
         if (!$client) {
             $client = new Client;
-            $client->t_id = $telegram_user['from']['id'];
+            $client->t_id = $t_id;
             $client->save();
         }
-
-        $message = Command::getUpdate()->getMessage()->getText(true);
 
         if (strpos($message, '/') !== false) { //restrict enter "/"
             $message = false;
@@ -157,17 +142,12 @@ class RegisterCommand extends Command
 
         }
 
-        $reply_markup = \Telegram::replyKeyboardMarkup([
-            'keyboard' => $keyboard, 
-            'resize_keyboard' => true, 
-            'one_time_keyboard' => false,
-            'selective' => true
-        ]);
-        $response = \Telegram::sendMessage([
-            'chat_id' => $telegram_user['from']['id'], 
-            'text' => $text, 
-            'reply_markup' => $reply_markup
-        ]);
+        $response = [
+            'keyboard' => $keyboard,
+            'text' => $text
+        ];
+
+        return $response;
 
     }
 }
