@@ -63,6 +63,29 @@ class TelegramController
             $resp = RegisterController::index($this->t_id, $message);
         }
 
+        if ($tUser->section == 'check') {
+            if ($message == 'На главную') {
+                $tUser->section = '';
+                $tUser->save();
+                $this->sendMsg($resp);
+                return;
+            }
+            $resp = CreditController::check($this->t_id, $message);
+        }
+
+        if ($tUser->section == 'pay') {
+            if ($message == 'На главную') {
+                $tUser->section = '';
+                $tUser->save();
+                $this->sendMsg($resp);
+                return;
+            }
+            $resp = CreditController::pay($this->t_id, $message);
+        }
+
+
+
+
         if ($message === 'Регистрация') {
             $tUser->section = 'register';
             $tUser->step = '0';
@@ -70,8 +93,18 @@ class TelegramController
             $resp = RegisterController::index($this->t_id, $message);
         }
 
+        if ($message === 'Проверить остаток') {
+            $tUser->section = 'check';
+            $tUser->step = '0';
+            $tUser->save();
+            $resp = CreditController::check($this->t_id, $message);
+        }
+
         if ($message === 'Отдать кредит') {
-            // Telegram::getCommandBus()->execute('start', '', $update);
+            $tUser->section = 'pay';
+            $tUser->step = '0';
+            $tUser->save();
+            $resp = CreditController::pay($this->t_id, $message);
         }
 
         if ($message === 'Контакты') {
