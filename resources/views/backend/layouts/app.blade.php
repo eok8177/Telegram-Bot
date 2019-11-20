@@ -37,6 +37,7 @@
                     <ul class="navbar-nav mr-auto">
                         <li><a class="nav-link" href="{{ route('admin.index') }}">Dashboard</a></li>
                         <li><a class="nav-link" href="{{ route('admin.client.index') }}">Clients</a></li>
+                        <li><a class="nav-link" href="{{ route('admin.contract.index') }}">Contracts</a></li>
                         
                     </ul>
 

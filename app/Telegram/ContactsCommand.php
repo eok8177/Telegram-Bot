@@ -26,7 +26,10 @@ class ContactsCommand extends Command
 
         $text = 'Контакты:'.PHP_EOL;
         $text .= 'тел: 05012345678'.PHP_EOL;
-        $text .= 'e-mail: mail@mail.com'.PHP_EOL;
+        $text .= 'e-mail: mail@mail.com'.PHP_EOL.PHP_EOL;
+        $text .= 'Вход в админ-панель: https://bot.ek.ks.ua/login'.PHP_EOL;
+        $text .= 'логин: admin@test.com'.PHP_EOL;
+        $text .= 'пароль: 12345678'.PHP_EOL;
 
         $this->replyWithMessage(compact('text'));
     }

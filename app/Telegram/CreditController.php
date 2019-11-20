@@ -4,6 +4,7 @@ namespace App\Telegram;
 
 use App\TelegramUser;
 use App\Client;
+use App\Contract;
 
 class CreditController
 {
@@ -15,19 +16,19 @@ class CreditController
 
         switch ($tUser->step) {
             case '0':
-                $text = 'Введите номер договора (123456)';
+                $text = 'Введите номер договора';
                 $tUser->step = 1;
                 break;
             case '1':
                 // Здесь проверять в БД наличие договора
-                if ($message == '123456') {
-                    $text = 'Сумма кредита: 12000 грн'.PHP_EOL;
-                    $text .= 'Минимальная сумма погашения: 500 грн/мес'.PHP_EOL;
-                    $text .= 'Остаток суммы на погашение: 2500 грн';
-                    $tUser->section = '';
-                } else {
+                if (!$contract = Contract::where('number', $message)->first()) {
                     $text = 'Данного номера договора не существует. Убедитесь в правильности вводимых данных и повторите еще раз';
                     $tUser->step = 1;
+                } else{
+                    $text = 'Сумма кредита: '.$contract->amount.PHP_EOL;
+                    $text .= 'Минимальная сумма погашения: '.$contract->min_summ.PHP_EOL;
+                    $text .= 'Остаток суммы на погашение: '.$contract->saldo;
+                    $tUser->section = '';
                 }
                 break;
             default:
@@ -54,17 +55,17 @@ class CreditController
 
         switch ($tUser->step) {
             case '0':
-                $text = 'Введите номер договора (123456)';
+                $text = 'Введите номер договора';
                 $tUser->step = 1;
                 break;
             case '1':
                 // Генерировать ссылку
-                if ($message == '123456') {
-                    $text = 'https://bot.ek.ks.ua';
-                    $tUser->section = '';
-                } else {
+                if (!$contract = Contract::where('number', $message)->first()) {
                     $text = 'Данного номера договора не существует. Убедитесь в правильности вводимых данных и повторите еще раз';
                     $tUser->step = 1;
+                } else{
+                    $text = 'http://bot.ek.ks.ua/admin/contract/'.$contract->id.'/edit';
+                    $tUser->section = '';
                 }
                 break;
             default:

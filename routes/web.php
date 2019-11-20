@@ -24,6 +24,7 @@ Route::middleware(['auth'])->prefix('admin')->namespace('Backend')->name('admin.
 
     Route::resource('user', 'UserController');
     Route::resource('client', 'ClientController');
+    Route::resource('contract', 'ContractController');
 });
 
 Route::post(Telegram::getAccessToken(), function(){
