@@ -21,6 +21,9 @@ Route::middleware(['auth'])->prefix('admin')->namespace('Backend')->name('admin.
     Route::post('/setting/store', 'SettingController@store')->name('setting.store');
     Route::post('/setting/setwebhook', 'SettingController@setwebhook')->name('setting.setwebhook');
     Route::post('/setting/getwebhookinfo', 'SettingController@getwebhookinfo')->name('setting.getwebhookinfo');
+
+    Route::resource('user', 'UserController');
+    Route::resource('client', 'ClientController');
 });
 
 Route::post(Telegram::getAccessToken(), function(){

@@ -7,6 +7,7 @@
     <table class="table table-hover">
       <thead>
         <tr>
+          <th scope="col">Actions</th>
           <th scope="col">Telegram ID</th>
           <th scope="col">Name</th>
           <th scope="col">Country</th>
@@ -17,6 +18,10 @@
       <tbody>
         @foreach($clients as $client)
         <tr>
+          <td>
+            <a href="{{ route('admin.client.edit',    ['client'=>$client->id]) }}" class="btn fa fa-pencil"></a>
+            <a href="{{ route('admin.client.destroy', ['client'=>$client->id]) }}" class="btn fa fa-trash-o delete-item"></a>
+          </td>
           <th scope="row">{{$client->t_id}}</th>
           <td>{{$client->last_name}} {{$client->first_name}} {{$client->sur_name}}</td>
           <td>{{$client->country}}</td>
