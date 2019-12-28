@@ -14,6 +14,10 @@ class CreditController
         $tUser = TelegramUser::find($t_id);
         $client = Client::where('t_id', $t_id)->first();
 
+        $keyboard = [
+            ['На главную']
+        ];
+
         switch ($tUser->step) {
             case '0':
                 $text = 'Введите номер договора';
@@ -28,8 +32,20 @@ class CreditController
                     $text = 'Сумма кредита: '.$contract->amount.PHP_EOL;
                     $text .= 'Минимальная сумма погашения: '.$contract->min_summ.PHP_EOL;
                     $text .= 'Остаток суммы на погашение: '.$contract->saldo;
-                    $tUser->section = '';
+
+                    $keyboard = [
+                        ["Погасить частично \u{1F4B8}" , "Погасить всю сумму \u{1F4B8}"],
+                        ['На главную']
+                    ];
                 }
+                break;
+            case '2': //Частично
+                $text = 'Введите сумму';
+                $tUser->step = 3;
+                break;
+            case '3': //Частично введна сумма - выдаем ссылку
+                $text = 'https://api.fondy.eu/api/checkout?button=8kh7iswi5m4j3psuxxv2n41qzibc9z9q&summ='.$message;
+                $tUser->section = '';
                 break;
             default:
                 $text = 'Что то не так';
@@ -40,9 +56,7 @@ class CreditController
 
         $resp = [
             'text' => $text,
-            'keyboard' => [
-                ['На главную']
-            ]
+            'keyboard' => $keyboard
         ];
 
         return $resp;
@@ -64,7 +78,7 @@ class CreditController
                     $text = 'Данного номера договора не существует. Убедитесь в правильности вводимых данных и повторите еще раз';
                     $tUser->step = 1;
                 } else{
-                    $text = 'http://bot.ek.ks.ua/admin/contract/'.$contract->id.'/edit';
+                    $text = 'https://api.fondy.eu/api/checkout?button=8kh7iswi5m4j3psuxxv2n41qzibc9z9q';
                     $tUser->section = '';
                 }
                 break;

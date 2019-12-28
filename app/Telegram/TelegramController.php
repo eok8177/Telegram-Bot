@@ -45,46 +45,64 @@ class TelegramController
 
         $tUser->save();
 
+        logger('TUser: ' . $tUser->section .' '. $tUser->step);
+        logger('message: ' . $message);
 
+        // Сброс на начало
+        if ($message === 'Отмена' || $message == 'На главную' || $message == 'Продолжить') {
+            $tUser->section = '';
+            $tUser->step = '0';
+            $tUser->save();
+            $this->sendMsg();
+            return;
+        }
+
+
+        // Обработка секции
         if($tUser->section == 'register') {
-
             if ($message == 'Изменить') {
                 $tUser->step = '0';
                 $tUser->save();
             }
-
-            if ($message == 'Продолжить') {
-                $tUser->section = '';
-                $tUser->save();
-                $this->sendMsg($resp);
-                return;
-            }
-
             $resp = RegisterController::index($this->t_id, $message);
         }
 
         if ($tUser->section == 'check') {
-            if ($message == 'На главную') {
-                $tUser->section = '';
+            //TODO записывать № договора
+            if ($message == "Погасить частично \u{1F4B8}") {
+                $tUser->step = '2';
                 $tUser->save();
-                $this->sendMsg($resp);
-                return;
+            }
+            if ($message == "Погасить всю сумму \u{1F4B8}") {
+                $tUser->step = '3';
+                $tUser->save();
             }
             $resp = CreditController::check($this->t_id, $message);
         }
 
         if ($tUser->section == 'pay') {
-            if ($message == 'На главную') {
-                $tUser->section = '';
-                $tUser->save();
-                $this->sendMsg($resp);
-                return;
-            }
             $resp = CreditController::pay($this->t_id, $message);
+        }
+
+        if($tUser->section == 'showProfile') {
+            //TODO Проверять ввод только цифры
+            // if (!is_int($message)) {
+            //     $tUser->section = '';
+            //     $tUser->save();
+            //     $this->sendMsg($resp);
+            //     return;
+            // }
+
+            $resp = RegisterController::show($this->t_id, $message);
+        }
+
+        if($tUser->section == 'editProfile') {
+            $resp = RegisterController::edit($this->t_id, $message);
         }
 
 
 
+        // Обработка комманд
 
         if ($message === 'Регистрация') {
             $tUser->section = 'register';
@@ -93,18 +111,25 @@ class TelegramController
             $resp = RegisterController::index($this->t_id, $message);
         }
 
-        if ($message === 'Проверить остаток') {
+        if ($message === "Проверить остаток \u{1F4B0}") {
             $tUser->section = 'check';
             $tUser->step = '0';
             $tUser->save();
             $resp = CreditController::check($this->t_id, $message);
         }
 
-        if ($message === 'Отдать кредит') {
+        if ($message === "Отдать кредит \u{1F4B8}") {
             $tUser->section = 'pay';
             $tUser->step = '0';
             $tUser->save();
             $resp = CreditController::pay($this->t_id, $message);
+        }
+
+        if ($message === "Профиль") {
+            $tUser->section = 'profile';
+            $tUser->step = '0';
+            $tUser->save();
+            $resp = RegisterController::profile($this->t_id, $message);
         }
 
         if ($message === 'Контакты') {
@@ -132,9 +157,8 @@ class TelegramController
                 ];
             } else {
                 $keyboard = [
-                    ['Проверить остаток'],
-                    ['Отдать кредит'],
-                    ['Контакты']
+                    ["Проверить остаток \u{1F4B0}", "Отдать кредит \u{1F4B8}"],
+                    ["Профиль", 'Контакты']
                 ];
             }
 
@@ -144,16 +168,19 @@ class TelegramController
             ];
         }
 
+
         $reply_markup = \Telegram::replyKeyboardMarkup([
             'keyboard' => $answer['keyboard'], 
             'resize_keyboard' => true, 
             'one_time_keyboard' => false,
             'selective' => true
         ]);
+
         $response = \Telegram::sendMessage([
             'chat_id' => $this->t_id, 
             'text' => $answer['text'], 
-            'reply_markup' => $reply_markup
+            'reply_markup' => $reply_markup,
+            'parse_mode' => 'html'
         ]);
     }
 }
